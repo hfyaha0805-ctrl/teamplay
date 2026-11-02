@@ -176,10 +176,15 @@ export class GameRoom extends DurableObject {
       if (room.players.every(p => p.submitted)) {
         room.reveal = { round: 1, words: room.players.map(p => p.answer) };
         room.history.push({ round: 1, words: room.reveal.words });
-        room.status = "reveal";
+        if (room.reveal.words[0] === room.reveal.words[1]) {
+          room.status = "finished";
+          room.winner = { word: room.reveal.words[0], rounds: 1 };
+        } else {
+          room.status = "reveal";
+        }
         await this.save();
         this.emitRoom();
-        await this.ctx.storage.setAlarm(Date.now() + REVEAL_MS);
+        if (room.status === "reveal") await this.ctx.storage.setAlarm(Date.now() + REVEAL_MS);
       } else {
         await this.save();
         this.emitRoom();
@@ -214,6 +219,17 @@ export class GameRoom extends DurableObject {
       await this.save();
       this.emitRoom();
       if (room.players.every(p => p.submitted)) await this.resolveRound();
+      return;
+    }
+    if (event === "game:emoji") {
+      if (room.status !== "round") return;
+      const allowedEmojis = ["😀", "😂", "😍", "😮", "🥹", "🔥", "❤️", "👏", "🙌", "🤔", "😭", "✨"];
+      const emoji = String(data.emoji || "");
+      if (!allowedEmojis.includes(emoji)) return;
+      const now = Date.now();
+      if (now - (player.lastEmojiAt || 0) < 450) return;
+      player.lastEmojiAt = now;
+      this.broadcast("game:emoji", { playerId: player.id, emoji });
       return;
     }
     if (event === "game:restart") {
