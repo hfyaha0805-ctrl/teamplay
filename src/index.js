@@ -76,7 +76,7 @@ export class GameRoom extends DurableObject {
         submitted: p.submitted, connected: p.connected
       })),
       round: room.round, roundStartedAt: room.roundStartedAt,
-      roundEndsAt: room.roundEndsAt, history: room.history,
+      roundEndsAt: room.roundEndsAt, serverNow: Date.now(), history: room.history,
       reveal: room.reveal, winner: room.winner
     };
   }
