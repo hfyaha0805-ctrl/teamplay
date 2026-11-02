@@ -36,7 +36,7 @@ const animals = ["rabbit","fox","cat","dog","panda","bird","hamster","capybara",
 const animalNames = {rabbit:"白兔",fox:"橘狐",cat:"小猫",dog:"小狗",panda:"熊猫",bird:"小鸟",hamster:"仓鼠",capybara:"水豚",seal:"海豹",frog:"青蛙",hedgehog:"刺猬",otter:"水獭"};
 const animalPalette = {rabbit:["#fff3e9","#e8b8aa"],fox:["#e99a62","#f4d5b6"],cat:["#f3c47d","#e9a0a0"],dog:["#c89a75","#f1d7b5"],panda:["#fff8eb","#303b37"],bird:["#f1cf68","#e5a94e"],hamster:["#f7e4ce","#d89d84"],capybara:["#b98763","#f1d4b4"],seal:["#d8e9e9","#9fc6ca"],frog:["#a8c77d","#719b57"],hedgehog:["#d7b18a","#a87553"],otter:["#b9825d","#f0d5b7"]};
 let selectedAnimal = "rabbit", room = null, myId = null, myIndex = -1, myName = "玩家 1";
-let currentDraft = "", timerFrame = null, lastRoomStatus = "", revealTimeout = null;
+let currentDraft = "", timerFrame = null, lastRoomStatus = "", revealTimeout = null, serverClockOffset = 0;
 
 function animalSvg(type, accent) {
   const p=animalPalette[type]||animalPalette.rabbit, base=p[0], c=accent||p[1], ink="#555b50", cream="#fff8ee";
@@ -122,7 +122,7 @@ function startTrack() {
     if(!room||room.status!=="round")return;
     const me=getMyPlayer(), other=room.players.find(p=>p.id!==myId);
     const endAt=room.roundEndsAt||room.roundStartedAt+ROUND_MS,duration=Math.max(1,endAt-room.roundStartedAt);
-    const now=Date.now(),elapsed=Math.max(0,now-room.roundStartedAt),progress=Math.min(1,elapsed/duration);
+    const now=Date.now()+serverClockOffset,elapsed=Math.max(0,now-room.roundStartedAt),progress=Math.min(1,elapsed/duration);
     const p0=me?.submitted?1:progress,p1=other?.submitted?1:progress;
     positionRunner($("runner0"),-90+180*p0);positionRunner($("runner1"),-90-180*p1);
     const left=Math.max(0,endAt-now);
@@ -154,6 +154,7 @@ function showFinish() {
 }
 function syncRoom(next) {
   room=next;
+  if(Number.isFinite(room.serverNow))serverClockOffset=room.serverNow-Date.now();
   if(room.status==="waiting"){showView("lobbyView");updateLobby();}
   else if(room.status==="initial"){
     showView("initialView");
