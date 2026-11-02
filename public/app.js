@@ -152,6 +152,20 @@ function showFinish() {
   $("finishHistory").innerHTML=room.history.map(h=>'<div class="history-item"><small>R'+String(h.round).padStart(2,"0")+'</small><div class="history-answers"><span class="history-creature">'+animalSvg(room.players[0]?.animal||"rabbit")+'<b>'+escapeHtml(h.words[0])+'</b></span><span class="history-dot">·</span><span class="history-creature">'+animalSvg(room.players[1]?.animal||"fox")+'<b>'+escapeHtml(h.words[1])+'</b></span></div></div>').join("");
   showView("finishView");
 }
+function showEmoji({playerId,emoji}) {
+  if(!room || room.status!=="round")return;
+  const layer=$("emojiLayer");
+  if(!layer)return;
+  const player=room.players.find(p=>p.id===playerId);
+  const index=room.players.findIndex(p=>p.id===playerId);
+  if(index<0)return;
+  const bubble=document.createElement("span");
+  bubble.className="emoji-pop "+(index===0?"from-left":"from-right");
+  bubble.textContent=emoji;
+  bubble.setAttribute("aria-label",(player?.name||"玩家")+"发送了表情"+emoji);
+  layer.appendChild(bubble);
+  setTimeout(()=>bubble.remove(),1650);
+}
 function syncRoom(next) {
   room=next;
   if(Number.isFinite(room.serverNow))serverClockOffset=room.serverNow-Date.now();
@@ -170,6 +184,7 @@ function syncRoom(next) {
 socket.on("room:joined",({code,playerId})=>{myId=playerId;enterRoom(code);});
 socket.on("room:update",next=>{const was=room?.status;syncRoom(next);if(was==="round"&&next.status==="reveal")showReveal();});
 socket.on("game:error",message=>toast(message));
+socket.on("game:emoji",payload=>showEmoji(payload));
 $("createBtn").addEventListener("click",()=>{myName=$("playerName").value.trim()||"玩家 1";socket.connect("create",{name:myName,animal:selectedAnimal});});
 $("joinBtn").addEventListener("click",()=>{myName=$("playerName").value.trim()||"玩家 2";const code=$("joinCode").value.trim().toUpperCase();if(code.length!==5)return toast("请输入5位房间码。");socket.connect("join",{code,name:myName,animal:selectedAnimal});});
 $("joinCode").addEventListener("input",e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,""));
@@ -180,7 +195,17 @@ $("initialWord").addEventListener("keydown",e=>{if(e.key==="Enter")$("initialSub
 $("roundWord").addEventListener("input",e=>{currentDraft=e.target.value;socket.emit("player:draft",{word:currentDraft});});
 $("submitWord").addEventListener("click",()=>{const word=$("roundWord").value.trim();if(!word)return toast("先写下一个词语。");socket.emit("player:submit",{word});});
 $("roundWord").addEventListener("keydown",e=>{if(e.key==="Enter")$("submitWord").click();});
+$("emojiBar").querySelectorAll("[data-emoji]").forEach(button=>button.addEventListener("click",()=>{
+  if(room?.status!=="round")return toast("进入联想回合后就能发送表情啦。");
+  socket.emit("game:emoji",{emoji:button.dataset.emoji});
+}));
 $("restartBtn").addEventListener("click",()=>socket.emit("game:restart",{name:myName,animal:selectedAnimal}));
+$("homeBtn").addEventListener("click",()=>{
+  if(socket.ws)socket.ws.close(1000,"left room");
+  room=null;myId=null;myIndex=-1;currentDraft="";lastRoomStatus="";
+  $("playerName").value=myName;
+  showView("homeView");
+});
 $("themeToggle").addEventListener("click",()=>{document.documentElement.classList.toggle("dark");localStorage.setItem("wordloop-theme",document.documentElement.classList.contains("dark")?"dark":"light");});
 if(localStorage.getItem("wordloop-theme")==="dark")document.documentElement.classList.add("dark");
 renderAnimalChoices();
