@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 
-const ROUND_MS = 20_000;
+const ROUND_MS = 30_000;
 const REVEAL_MS = 3_200;
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -12,7 +12,7 @@ function cleanName(value) {
   return String(value || "玩家").trim().slice(0, 12) || "玩家";
 }
 function cleanAnimal(value) {
-  const allowed = ["rabbit", "fox", "cat", "dog", "panda", "bird", "hamster"];
+  const allowed = ["rabbit", "fox", "cat", "dog", "panda", "bird", "hamster", "capybara", "seal", "frog", "hedgehog", "otter"];
   return allowed.includes(value) ? value : "rabbit";
 }
 function json(data, status = 200) {
@@ -140,6 +140,17 @@ export class GameRoom extends DurableObject {
     const player = this.playerFor(ws);
     if (!room || !player) return;
 
+    if (event === "player:animal") {
+      if (room.status !== "waiting") return;
+      const nextAnimal = cleanAnimal(data.animal);
+      if (player.animal !== nextAnimal) {
+        player.animal = nextAnimal;
+        player.ready = false;
+        await this.save();
+        this.emitRoom();
+      }
+      return;
+    }
     if (event === "player:ready") {
       if (room.status !== "waiting") return;
       player.ready = true;
@@ -183,7 +194,20 @@ export class GameRoom extends DurableObject {
     }
     if (event === "player:submit") {
       if (room.status !== "round" || player.submitted) return;
-      const answer = String(data.word ?? player.draft ?? "").trim().slice(0, 24);
+      const submittedWord = String(data.word ?? player.draft ?? "").trim().slice(0, 24);
+      if (Date.now() >= room.roundEndsAt) {
+        if (submittedWord) player.draft = submittedWord;
+        room.players.forEach(p => {
+          if (!p.submitted) {
+            p.answer = p.draft || "（未填写）";
+            p.submitted = true;
+            p.submittedAt = room.roundEndsAt;
+          }
+        });
+        await this.resolveRound();
+        return;
+      }
+      const answer = submittedWord;
       player.answer = answer || "（未填写）";
       player.submitted = true;
       player.submittedAt = Date.now();
