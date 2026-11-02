@@ -96,7 +96,7 @@
               <circle cx="180" cy="312" r="5" class="meet-dot"/>
             </svg>
             <div class="track-center"><div class="center-caption">TIME LEFT</div><div id="countdown" class="countdown">30<span>.0</span></div><div class="center-sub" id="centerSub">准备相遇</div></div>
-            <div id="runner0" class="runner runner-a"></div><div id="runner1" class="runner runner-b"></div>
+            <div id="runner0" class="runner runner-a"></div><div id="runner1" class="runner runner-b"></div><div id="emojiLayer" class="emoji-layer" aria-live="polite"></div>
             <div class="meet-label">MEET HERE</div>
           </div>
           <div class="track-legend"><span><i class="legend-dot moss-dot"></i><b id="legend0">你</b></span><span><i class="legend-dot clay-dot"></i><b id="legend1">对方</b></span></div>
@@ -106,6 +106,7 @@
           <input id="roundWord" class="text-input big-input" maxlength="24" placeholder="写下你想到的词…" autocomplete="off" />
           <button id="submitWord" class="primary-button wide-button">提交答案 <span>↗</span></button>
           <div class="waiting-note" id="waitingNote">提交后，小动物会先抵达终点等你。</div>
+          <div class="emoji-bar" id="emojiBar" aria-label="发送表情"><span>给对方一个回应</span><div class="emoji-buttons"><button type="button" data-emoji="😀">😀</button><button type="button" data-emoji="😂">😂</button><button type="button" data-emoji="😍">😍</button><button type="button" data-emoji="😮">😮</button><button type="button" data-emoji="🥹">🥹</button><button type="button" data-emoji="🔥">🔥</button><button type="button" data-emoji="❤️">❤️</button><button type="button" data-emoji="👏">👏</button><button type="button" data-emoji="🙌">🙌</button><button type="button" data-emoji="🤔">🤔</button><button type="button" data-emoji="😭">😭</button><button type="button" data-emoji="✨">✨</button></div></div>
           <div class="privacy-note">对方看不到你的答案，直到双方都提交。</div>
         </div>
       </div>
@@ -127,11 +128,12 @@
       <div class="finish-card">
         <div class="finish-stamp">SAME<br>WAVELENGTH</div>
         <div class="hero-kicker"><span class="kicker-line"></span> YOU FOUND EACH OTHER</div>
-        <h2>这一次，<em>想到一起了。</em></h2>
+        <h2><em>心有灵犀，一点通！</em></h2>
         <p class="finish-copy">走过 <b id="finishRounds">0</b> 轮，你们终于在同一个词里相遇。</p>
         <div class="final-word" id="finalWord">宇宙</div>
         <div id="finishHistory" class="finish-history"></div>
-        <button id="restartBtn" class="primary-button wide-button">再玩一局 <span>↻</span></button>
+        <button id="restartBtn" class="primary-button wide-button">再来一局 <span>↻</span></button>
+        <button id="homeBtn" class="secondary-button wide-button">回到首页</button>
         <p class="micro-copy">每一次联想，都是一次靠近。</p>
       </div>
     </section>
