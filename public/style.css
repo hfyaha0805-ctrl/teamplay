@@ -39,3 +39,18 @@
   .animal-choice{height:69px}
   .animal-choice svg{width:41px;height:41px}
 }
+
+/* WORDLOOP reactions and win-state controls */
+.emoji-bar{margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.emoji-bar>span{display:block;font-size:10px;color:var(--muted);margin-bottom:8px}
+.emoji-buttons{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+.emoji-buttons button{height:34px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:18px;cursor:pointer;transition:transform .15s,border-color .15s,background .15s}
+.emoji-buttons button:hover{transform:translateY(-2px) scale(1.05);border-color:var(--moss);background:var(--moss-soft)}
+.emoji-buttons button:active{transform:scale(.92)}
+.emoji-layer{position:absolute;inset:0;z-index:5;overflow:visible;pointer-events:none}
+.emoji-pop{position:absolute;top:34%;font-size:35px;line-height:1;filter:drop-shadow(0 3px 5px #0002);animation:emojiFloat 1.55s cubic-bezier(.2,.7,.25,1) both}
+.emoji-pop.from-left{left:20%}
+.emoji-pop.from-right{right:20%}
+@keyframes emojiFloat{0%{opacity:0;transform:translateY(18px) scale(.55) rotate(-12deg)}15%{opacity:1;transform:translateY(0) scale(1.18) rotate(5deg)}35%{transform:translateY(-8px) scale(1) rotate(0)}100%{opacity:0;transform:translateY(-82px) scale(.85) rotate(8deg)}}
+#homeBtn{width:100%;margin-top:9px}
+@media(max-width:700px){.emoji-buttons{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}.emoji-buttons button{height:32px;font-size:17px}.emoji-pop{font-size:31px;top:32%}.emoji-pop.from-left{left:12%}.emoji-pop.from-right{right:12%}}
