@@ -8,7 +8,8 @@ RUN npm install --omit=dev
 
 COPY . .
 
-ENV PORT=3000
-EXPOSE 3000
+# Tencent CloudBase Run is probing port 80 for this service.
+ENV PORT=80
+EXPOSE 80
 
 CMD ["npm", "start"]
